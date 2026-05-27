@@ -1,0 +1,10 @@
+{
+  "manifest_version": 1,
+  "domain": "shutter_new",
+  "name": "Roller Shutter Controller",
+  "codeowners": ["@OToussaint"],
+  "config_flow": false,
+  "documentation": "https://github.com/yourusername/shutter-new",
+  "requirements": [],
+  "version": "1.0.0"
+}
