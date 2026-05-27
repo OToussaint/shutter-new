@@ -21,6 +21,8 @@ A compact and intuitive Home Assistant Lovelace card for controlling roller shut
 
 ### Using HACS (Recommended) ⭐
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=OToussaint&repository=https%3A%2F%2Fgithub.com%2FOToussaint%2Fshutter-new&category=dashboard)
+
 1. Open **HACS** in Home Assistant
 2. Go to **Frontends**
 3. Search for **"Roller Shutter Controller"**
