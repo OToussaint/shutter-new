@@ -15,18 +15,40 @@ A compact and intuitive Home Assistant Lovelace card for controlling roller shut
 - **Motion Indicators**: Shows when shutters are opening/closing
 - **Customizable**: Hide controls you don't need
 
+**Available on HACS** — Easy 1-click installation from Home Assistant!
+
 ## Installation
 
-### 1. Copy the file to your Home Assistant
+### Using HACS (Recommended) ⭐
 
-Copy `shutter-new.js` to your Home Assistant config folder:
-```
-.homeassistant/www/shutter-new.js
-```
+1. Open **HACS** in Home Assistant
+2. Go to **Frontends**
+3. Search for **"Roller Shutter Controller"**
+4. Click **Install**
+5. Restart Home Assistant
+6. The card will appear in your Lovelace card picker
 
-### 2. Add to your dashboard
+### Manual Installation
 
-In your Lovelace dashboard (edit mode), add a new card and search for **"Roller Shutter Controller"** in the custom cards list, or use YAML:
+1. Copy `shutter-new.js` to your Home Assistant config folder:
+   ```
+   .homeassistant/www/shutter-new.js
+   ```
+
+2. Add to your Lovelace resources (in your dashboard YAML):
+   ```yaml
+   resources:
+     - url: /local/shutter-new.js
+       type: module
+   ```
+
+3. Restart Home Assistant
+
+## Adding to Your Dashboard
+
+Once installed, add a new card to your dashboard:
+
+In **edit mode**, search for **"Roller Shutter Controller"** in the custom cards list, or use YAML:
 
 ```yaml
 type: custom:shutter-new
