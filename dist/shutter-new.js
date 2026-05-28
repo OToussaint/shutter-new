@@ -196,7 +196,7 @@ class ShutterNew extends HTMLElement {
           width: 100%;
         }
 
-        /* Position modifier: reverse layout to place buttons on the right */
+        /* Position right: inverse order (volet à gauche, boutons à droite) */
         .shutter-main-layout.position-right {
           flex-direction: row-reverse;
         }
