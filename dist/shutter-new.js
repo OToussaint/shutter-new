@@ -163,6 +163,10 @@ class ShutterNew extends HTMLElement {
     const buttonPosition = this._config.position || "left";
     const isPositionRight = buttonPosition === "right";
 
+    // When position is right AND we have both columns, invert them
+    const colForFavorite = (isPositionRight && hasCol1 && hasCol2) ? 2 : 1;
+    const colForControlsAdjusted = (isPositionRight && hasCol1 && hasCol2) ? 1 : colForControls;
+
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -391,25 +395,25 @@ class ShutterNew extends HTMLElement {
           <div class="shutter-main-layout${isPositionRight ? ' position-right' : ''}">
             <div class="controls-grid">
               ${showFavorite ? `
-                <button class="control-btn" id="favoriteBtn" title="${labelFavorite}" style="grid-column: 1; grid-row: 1;">
+                <button class="control-btn" id="favoriteBtn" title="${labelFavorite}" style="grid-column: ${colForFavorite}; grid-row: 1;">
                   <ha-icon icon="mdi:heart-outline"></ha-icon>
                 </button>
               ` : ''}
 
               ${showUp ? `
-                <button class="control-btn" id="upBtn" title="${labelOpen}" style="grid-column: ${colForControls}; grid-row: ${upRow};">
+                <button class="control-btn" id="upBtn" title="${labelOpen}" style="grid-column: ${colForControlsAdjusted}; grid-row: ${upRow};">
                   <ha-icon icon="mdi:arrow-up"></ha-icon>
                 </button>
               ` : ''}
 
               ${showStop ? `
-                <button class="control-btn" id="stopBtn" title="${labelStop}" style="grid-column: ${colForControls}; grid-row: ${stopRow};">
+                <button class="control-btn" id="stopBtn" title="${labelStop}" style="grid-column: ${colForControlsAdjusted}; grid-row: ${stopRow};">
                   <ha-icon icon="mdi:stop"></ha-icon>
                 </button>
               ` : ''}
 
               ${showDown ? `
-                <button class="control-btn" id="downBtn" title="${labelClose}" style="grid-column: ${colForControls}; grid-row: ${downRow};">
+                <button class="control-btn" id="downBtn" title="${labelClose}" style="grid-column: ${colForControlsAdjusted}; grid-row: ${downRow};">
                   <ha-icon icon="mdi:arrow-down"></ha-icon>
                 </button>
               ` : ''}
@@ -694,6 +698,7 @@ class ShutterNewEditor extends HTMLElement {
       'ui.panel.lovelace.editor.features.types.cover-position-favorite.label',
       'Favorite'
     );
+    const labelPosition = this._localize('ui.card.cover.position', 'Position');
     const labelLeft = this._localize('ui.panel.lovelace.editor.card.energy-distribution.opening_directions.left', 'Left');
     const labelRight = this._localize('ui.panel.lovelace.editor.card.energy-distribution.opening_directions.right', 'Right');
 
@@ -852,6 +857,11 @@ class ShutterNewEditor extends HTMLElement {
       'Hide'
     );
 
+    const posLabel = this._localize(
+      'ui.card.cover.position',
+      'Position'
+    );
+
     /* Define human-friendly labels for each field */
     const labels = {
       entity: entityLabel,
@@ -860,7 +870,7 @@ class ShutterNewEditor extends HTMLElement {
 
       favorite: `${favLabel} Position (0-100)`,
 
-      position: "Buttons Position",
+      position: posLabel,
 
       hide: hideLabel,
 
