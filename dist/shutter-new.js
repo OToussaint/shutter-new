@@ -31,7 +31,8 @@ class ShutterNew extends HTMLElement {
       entity: "",              // Empty entity ID (must be set by user)
       name: "",                // Falls back to entity's friendly_name if not set
       favorite: 50,            // Default favorite position: 50%
-      hide: []                 // All controls visible by default
+      hide: [],                // All controls visible by default
+      position: "left"         // Buttons position: "left" or "right" (default: "left")
     };
   }
 
@@ -158,6 +159,10 @@ class ShutterNew extends HTMLElement {
     // Determine which column (1 or 2) receives the control buttons
     const colForControls = hasCol1 ? 2 : 1;
 
+    // Get position configuration (left or right)
+    const buttonPosition = this._config.position || "left";
+    const isPositionRight = buttonPosition === "right";
+
     this.shadowRoot.innerHTML = `
       <style>
         :host {
@@ -189,6 +194,11 @@ class ShutterNew extends HTMLElement {
           gap: 12px;
           justify-content: center;
           width: 100%;
+        }
+
+        /* Position modifier: reverse layout to place buttons on the right */
+        .shutter-main-layout.position-right {
+          flex-direction: row-reverse;
         }
 
         /* Adaptive grid depending on displayed buttons */
@@ -378,7 +388,7 @@ class ShutterNew extends HTMLElement {
       <ha-card id="haCard">
         <div class="shutter-title" id="title">Chargement...</div>
         <div class="card-content">
-          <div class="shutter-main-layout">
+          <div class="shutter-main-layout${isPositionRight ? ' position-right' : ''}">
             <div class="controls-grid">
               ${showFavorite ? `
                 <button class="control-btn" id="favoriteBtn" title="${labelFavorite}" style="grid-column: 1; grid-row: 1;">
@@ -684,6 +694,8 @@ class ShutterNewEditor extends HTMLElement {
       'ui.panel.lovelace.editor.features.types.cover-position-favorite.label',
       'Favorite'
     );
+    const labelLeft = this._localize('ui.panel.lovelace.editor.card.energy-distribution.opening_directions.left', 'Left');
+    const labelRight = this._localize('ui.panel.lovelace.editor.card.energy-distribution.opening_directions.right', 'Right');
 
     /* ===== CONFIGURATION SCHEMA ===== */
     /* Native HA schema defines form fields and their types */
@@ -716,6 +728,19 @@ class ShutterNewEditor extends HTMLElement {
             max: 100,
             step: 1,
             mode: "box"            // Number input box
+          }
+        }
+      },
+
+      /* Position of control buttons (left or right) */
+      {
+        name: "position",
+        selector: {
+          select: {
+            options: [
+              { value: "left", label: labelLeft },
+              { value: "right", label: labelRight }
+            ]
           }
         }
       },
@@ -759,6 +784,7 @@ class ShutterNewEditor extends HTMLElement {
         this._config.favorite !== undefined
           ? this._config.favorite
           : 50,                        // Default to 50% if not set
+      position: this._config.position || "left",  // Default to "left" if not set
       hide: {
         items: this._config.hide || [] // Array of hidden controls
       }
@@ -834,6 +860,8 @@ class ShutterNewEditor extends HTMLElement {
 
       favorite: `${favLabel} Position (0-100)`,
 
+      position: "Buttons Position",
+
       hide: hideLabel,
 
       items: ""  // Hide "items" label (looks better)
@@ -856,6 +884,8 @@ class ShutterNewEditor extends HTMLElement {
       entity: formData.entity,
 
       favorite: formData.favorite,
+
+      position: formData.position || "left",           // Button position (left or right)
 
       hide: formData.hide?.items || []                  // Array of hidden controls
     };
