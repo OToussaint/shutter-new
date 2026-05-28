@@ -65,6 +65,7 @@ entity: cover.living_room_blinds
 ### Optional
 - **name**: Custom display name (defaults to entity's friendly name)
 - **favorite**: Position to jump to when clicking the heart button (0-100%, default: 50%)
+- **position**: Buttons position on the card ("left" or "right", default: "left")
 - **hide**: Array of controls to hide from the card
 
 ### Examples
@@ -91,6 +92,13 @@ favorite: 30
 hide:
   - stop    # Hide the stop button
   - favorite  # Hide the favorite button
+```
+
+#### Buttons on the right
+```yaml
+type: custom:shutter-new
+entity: cover.garage_door
+position: right
 ```
 
 ## How to Use
