@@ -164,7 +164,7 @@ class ShutterNew extends HTMLElement {
     const isPositionRight = buttonPosition === "right";
 
     // When position is right AND we have both columns, invert them
-    const colForFavorite = isPositionRight ? 2 : 1;
+    const colForFavorite = (isPositionRight && hasCol2) ? 2 : 1;
     const colForControlsAdjusted = isPositionRight ? 1 : colForControls;
 
     this.shadowRoot.innerHTML = `
