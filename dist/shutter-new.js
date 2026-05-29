@@ -28,14 +28,18 @@ async function loadTranslations(lang) {
     const baseUrl = getComponentBaseUrl();
     const filePath = `${baseUrl}/translations/${langFile}.json`;
     
+    console.log(`[ShutterNew] Loading translations: lang=${lang}, langFile=${langFile}, path=${filePath}`);
+    
     const response = await fetch(filePath);
     if (!response.ok) {
       // Fall back to English if requested language not found
+      console.log(`[ShutterNew] ${langFile}.json not found (${response.status}), falling back to en.json`);
       const fallbackPath = `${baseUrl}/translations/en.json`;
       const fallbackResponse = await fetch(fallbackPath);
       if (!fallbackResponse.ok) throw new Error('Failed to load translations');
       return (await fallbackResponse.json()).shutter_new || {};
     }
+    console.log(`[ShutterNew] Translations loaded successfully: ${langFile}`);
     return (await response.json()).shutter_new || {};
   } catch (error) {
     console.error('Error loading translations:', error);
