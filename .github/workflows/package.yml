@@ -25,16 +25,13 @@ jobs:
           cp dist/shutter-new.js shutter-new/
           cp strings.json shutter-new/
           cp -r dist/translations/ shutter-new/
-          cp dist/shutter-new.js ./shutter-new.js
           cd shutter-new
           zip -r ../shutter-new.zip .
                
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            shutter-new.zip
-            shutter-new.js
+          files: shutter-new.zip
           tag_name: ${{ steps.version.outputs.version }}
           prerelease: false
         env:
