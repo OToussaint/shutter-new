@@ -82,8 +82,10 @@ class ShutterNew extends HTMLElement {
     loadTranslations(browserLang).then(translations => {
       this._translations = translations;
       this._translationsLoaded = true;
-      // FORCE re-render with new translations
-      this._render();
+      // Only re-render if config already set (card already initialized)
+      if (this._config) {
+        this._render();
+      }
     }).catch(err => {
       console.error('[ShutterNew._initTranslations] Error loading translations:', err);
     });
