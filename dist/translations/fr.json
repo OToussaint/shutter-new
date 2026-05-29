@@ -1,0 +1,14 @@
+{
+  "shutter_new": {
+    "open": "Ouvrir",
+    "stop": "Arrêter",
+    "close": "Fermer",
+    "position": "Position",
+    "favorite": "Favori",
+    "left": "Gauche",
+    "right": "Droite",
+    "hide": "Masquer",
+    "entity": "Entité",
+    "name": "Nom"
+  }
+}
