@@ -28,18 +28,14 @@ async function loadTranslations(lang) {
     const baseUrl = getComponentBaseUrl();
     const filePath = `${baseUrl}/translations/${langFile}.json`;
     
-    console.log(`[ShutterNew] Loading translations: lang=${lang}, langFile=${langFile}, path=${filePath}`);
-    
     const response = await fetch(filePath);
     if (!response.ok) {
       // Fall back to English if requested language not found
-      console.log(`[ShutterNew] ${langFile}.json not found (${response.status}), falling back to en.json`);
       const fallbackPath = `${baseUrl}/translations/en.json`;
       const fallbackResponse = await fetch(fallbackPath);
       if (!fallbackResponse.ok) throw new Error('Failed to load translations');
       return (await fallbackResponse.json()).shutter_new || {};
     }
-    console.log(`[ShutterNew] Translations loaded successfully: ${langFile}`);
     return (await response.json()).shutter_new || {};
   } catch (error) {
     console.error('Error loading translations:', error);
@@ -111,12 +107,16 @@ class ShutterNew extends HTMLElement {
    * Key design: doesn't overwrite position if user is actively dragging
    */
   set hass(hass) {
-    // Load translations once when hass is first set
+    // Load translations once when hass is first set and wait for them
     if (!this._translationsLoaded && hass) {
       loadTranslations(hass.language || 'en').then(translations => {
         this._translations = translations;
         this._translationsLoaded = true;
+        // NOW update DOM after translations are loaded
+        this._updateDom();
       });
+      // Don't continue until translations are loaded
+      return;
     }
 
     this._hass = hass;
@@ -730,12 +730,18 @@ class ShutterNewEditor extends HTMLElement {
    * and localization
    */
   set hass(hass) {
-    // Load translations once when hass is first set
+    // Load translations once when hass is first set and wait for them
     if (!this._translationsLoaded && hass) {
       loadTranslations(hass.language || 'en').then(translations => {
         this._translations = translations;
         this._translationsLoaded = true;
+        // NOW propagate hass after translations are loaded
+        this._hass = hass;
+        if (this._form) {
+          this._form.hass = hass;
+        }
       });
+      return;
     }
     this._hass = hass;
     /* Propagate hass to form if already created */
