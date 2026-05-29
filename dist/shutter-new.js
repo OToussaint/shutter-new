@@ -80,18 +80,27 @@ class ShutterNew extends HTMLElement {
     // Try to get language from browser
     const browserLang = navigator.language || navigator.userLanguage || 'en';
     console.log('[ShutterNew._initTranslations] Starting with browserLang:', browserLang);
-    loadTranslations(browserLang).then(translations => {
-      console.log('[ShutterNew._initTranslations] Translations loaded:', translations);
-      this._translations = translations;
-      this._translationsLoaded = true;
-      // If component already rendered, update it with translations
-      if (this.shadowRoot.innerHTML) {
-        console.log('[ShutterNew._initTranslations] Updating DOM with translations');
-        this._updateDom();
-      }
-    }).catch(err => {
-      console.error('[ShutterNew._initTranslations] Error loading translations:', err);
-    });
+    console.log('[ShutterNew._initTranslations] typeof loadTranslations:', typeof loadTranslations);
+    console.log('[ShutterNew._initTranslations] loadTranslations:', loadTranslations);
+    
+    try {
+      const result = loadTranslations(browserLang);
+      console.log('[ShutterNew._initTranslations] loadTranslations returned:', result);
+      result.then(translations => {
+        console.log('[ShutterNew._initTranslations] Translations loaded:', translations);
+        this._translations = translations;
+        this._translationsLoaded = true;
+        // If component already rendered, update it with translations
+        if (this.shadowRoot.innerHTML) {
+          console.log('[ShutterNew._initTranslations] Updating DOM with translations');
+          this._updateDom();
+        }
+      }).catch(err => {
+        console.error('[ShutterNew._initTranslations] Error in .then() promise:', err);
+      });
+    } catch (err) {
+      console.error('[ShutterNew._initTranslations] Error calling loadTranslations:', err);
+    }
   }
 
   /**
