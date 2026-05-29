@@ -27,8 +27,7 @@ A compact and intuitive Home Assistant Lovelace card for controlling roller shut
 2. Go to **Frontends**
 3. Search for **"Roller Shutter Controller"**
 4. Click **Install**
-5. Restart Home Assistant
-6. The card will appear in your Lovelace card picker
+5. The card will appear in your Lovelace card picker
 
 ### Manual Installation
 
