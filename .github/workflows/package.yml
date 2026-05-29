@@ -32,6 +32,6 @@ jobs:
         with:
           files: shutter-new.zip
           tag_name: ${{ steps.version.outputs.version }}
-          prerelease: true
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
