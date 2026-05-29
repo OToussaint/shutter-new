@@ -486,7 +486,7 @@ class ShutterNew extends HTMLElement {
           <div class="shutter-main-layout${isPositionRight ? ' position-right' : ''}">
             <div class="controls-grid">
               ${showFavorite ? `
-                <button class="control-btn" id="favoriteBtn" title="${labelFavorite}" aria-label="${labelFavorite}" style="grid-column: ${colForFavorite}; grid-row: 1;">
+                <button class="control-btn" id="favoriteBtn" title="${labelFavorite}" style="grid-column: ${colForFavorite}; grid-row: 1;">
                   <ha-icon icon="mdi:heart-outline"></ha-icon>
                 </button>
               ` : ''}
