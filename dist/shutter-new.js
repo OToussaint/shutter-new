@@ -60,6 +60,24 @@ class ShutterNew extends HTMLElement {
     // Translations storage and loading state
     this._translations = {};
     this._translationsLoaded = false;
+    // Load translations immediately from browser language
+    this._initTranslations();
+  }
+
+  /**
+   * Initialize translations from browser language or HA language later
+   */
+  _initTranslations() {
+    // Try to get language from browser
+    const browserLang = navigator.language || navigator.userLanguage || 'en';
+    loadTranslations(browserLang).then(translations => {
+      this._translations = translations;
+      this._translationsLoaded = true;
+      // If component already rendered, update it with translations
+      if (this.shadowRoot.innerHTML) {
+        this._updateDom();
+      }
+    });
   }
 
   /**
@@ -107,15 +125,16 @@ class ShutterNew extends HTMLElement {
    * Key design: doesn't overwrite position if user is actively dragging
    */
   set hass(hass) {
-    // Load translations once when hass is first set and wait for them
-    if (!this._translationsLoaded && hass) {
-      loadTranslations(hass.language || 'en').then(translations => {
+    // If HA language is different from what we loaded, reload translations
+    const haLang = hass.language || 'en';
+    if (this._translations && !this._translations['open']) {
+      // Translations not loaded yet, load with HA language
+      loadTranslations(haLang).then(translations => {
         this._translations = translations;
         this._translationsLoaded = true;
-        // NOW update DOM after translations are loaded
         this._updateDom();
       });
-      // Don't continue until translations are loaded
+      this._hass = hass;
       return;
     }
 
@@ -723,6 +742,24 @@ class ShutterNewEditor extends HTMLElement {
     // Translations storage and loading state
     this._translations = {};
     this._translationsLoaded = false;
+    // Load translations immediately from browser language
+    this._initTranslations();
+  }
+
+  /**
+   * Initialize translations from browser language or HA language later
+   */
+  _initTranslations() {
+    // Try to get language from browser
+    const browserLang = navigator.language || navigator.userLanguage || 'en';
+    loadTranslations(browserLang).then(translations => {
+      this._translations = translations;
+      this._translationsLoaded = true;
+      // If form already rendered, refresh it with translations
+      if (this._form) {
+        this._form.computeLabel = this._computeLabel.bind(this);
+      }
+    });
   }
 
   /**
@@ -730,19 +767,22 @@ class ShutterNewEditor extends HTMLElement {
    * and localization
    */
   set hass(hass) {
-    // Load translations once when hass is first set and wait for them
-    if (!this._translationsLoaded && hass) {
-      loadTranslations(hass.language || 'en').then(translations => {
+    // If translations still not loaded, load with HA language
+    if (!this._translations || !this._translations['open']) {
+      const haLang = hass.language || 'en';
+      loadTranslations(haLang).then(translations => {
         this._translations = translations;
         this._translationsLoaded = true;
-        // NOW propagate hass after translations are loaded
-        this._hass = hass;
+        // Update form labels after translations load
         if (this._form) {
+          this._form.computeLabel = this._computeLabel.bind(this);
           this._form.hass = hass;
         }
       });
+      this._hass = hass;
       return;
     }
+    
     this._hass = hass;
     /* Propagate hass to form if already created */
     if (this._form) {
