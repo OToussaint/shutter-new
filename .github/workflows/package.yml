@@ -23,8 +23,8 @@ jobs:
         run: |
           mkdir -p shutter-new
           cp dist/shutter-new.js shutter-new/
-          # cp strings.json shutter-new/
-          # cp -r dist/translations/ shutter-new/
+          cp strings.json shutter-new/
+          cp -r dist/translations/ shutter-new/
           zip -r shutter-new.zip shutter-new/
       
       - name: Create Release
