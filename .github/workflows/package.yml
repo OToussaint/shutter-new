@@ -1,0 +1,37 @@
+name: Package Release
+
+on:
+  push:
+    branches: [main, master, develop]
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Read version from manifest
+        id: version
+        run: |
+          VERSION=$(grep '"version"' manifest.json | head -1 | sed 's/.*"version": "\([^"]*\)".*/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Create package
+        run: |
+          mkdir -p shutter-new
+          cp dist/shutter-new.js shutter-new/
+          # cp strings.json shutter-new/
+          # cp -r dist/translations/ shutter-new/
+          zip -r shutter-new.zip shutter-new/
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: shutter-new.zip
+          tag_name: ${{ steps.version.outputs.version }}
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
