@@ -1,4 +1,29 @@
 /**
+ * Shared translation loader utility
+ * Loads translations from local JSON files based on language code
+ * Returns promise that resolves to translations object
+ */
+async function loadTranslations(lang) {
+  try {
+    // Map language code to file (e.g., 'en-GB' -> 'en.json')
+    const langFile = lang.split('-')[0].toLowerCase();
+    const filePath = `./translations/${langFile}.json`;
+    
+    const response = await fetch(filePath);
+    if (!response.ok) {
+      // Fall back to English if requested language not found
+      const fallbackResponse = await fetch('./translations/en.json');
+      if (!fallbackResponse.ok) throw new Error('Failed to load translations');
+      return (await fallbackResponse.json()).shutter_new || {};
+    }
+    return (await response.json()).shutter_new || {};
+  } catch (error) {
+    console.error('Error loading translations:', error);
+    return {}; // Empty object as last resort
+  }
+}
+
+/**
  * ShutterNew: A custom Home Assistant Lovelace card for controlling roller shutters
  * Features: compact 100x100px visual representation, drag-to-control, keyboard buttons,
  * favorites support, and configurable hidden controls
@@ -12,6 +37,9 @@ class ShutterNew extends HTMLElement {
     this._position = 0;
     // Flag to prevent HA state overwriting user's manual drag
     this._isDragging = false;
+    // Translations storage and loading state
+    this._translations = {};
+    this._translationsLoaded = false;
   }
 
   /**
@@ -59,6 +87,14 @@ class ShutterNew extends HTMLElement {
    * Key design: doesn't overwrite position if user is actively dragging
    */
   set hass(hass) {
+    // Load translations once when hass is first set
+    if (!this._translationsLoaded && hass) {
+      loadTranslations(hass.language || 'en').then(translations => {
+        this._translations = translations;
+        this._translationsLoaded = true;
+      });
+    }
+
     this._hass = hass;
     const entityId = this._config.entity;
     const stateObj = hass.states[entityId];
@@ -103,17 +139,17 @@ class ShutterNew extends HTMLElement {
   }
 
   /**
-   * Utility: Translates UI text based on Home Assistant's language settings
-   * Gracefully falls back to English if translation is unavailable or HA not ready
+   * Utility: Get translated text from local translation files
+   * Falls back to English version if translation key not found
+   * Format: key should be like 'open', 'close', 'stop', etc.
    */
-  _localize(key, fallback) {
-    // Try to get translation from HA's localization system
-    if (this._hass && this._hass.localize) {
-      const translation = this._hass.localize(key);
-      if (translation) return translation;
+  _localize(key, fallback = '') {
+    // Return from local translations if available
+    if (this._translations && this._translations[key]) {
+      return this._translations[key];
     }
-    // Use English fallback if translation fails or HA not initialized
-    return fallback;
+    // Fallback to English string if translation not found
+    return fallback || key;
   }
 
   /**
@@ -129,11 +165,11 @@ class ShutterNew extends HTMLElement {
     const showStop = !hideList.includes('stop');
     const showDown = !hideList.includes('down');
 
-    // Get translated button labels (respects user's HA language setting)
-    const labelOpen = this._localize('ui.card.cover.open_cover', 'Open');
-    const labelStop = this._localize('ui.card.cover.stop_cover', 'Stop');
-    const labelClose = this._localize('ui.card.cover.close_cover', 'Close');
-    const labelFavorite = this._localize('ui.panel.lovelace.editor.features.types.cover-position-favorite.label', 'Favorite');
+    // Get translated button labels (from local translation files)
+    const labelOpen = this._localize('open', 'Open');
+    const labelStop = this._localize('stop', 'Stop');
+    const labelClose = this._localize('close', 'Close');
+    const labelFavorite = this._localize('favorite', 'Favorite');
 
     // Determine grid structure based on which columns contain controls
     // Column 1: Favorite button (if shown)
@@ -660,6 +696,9 @@ class ShutterNewEditor extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: 'open' });
+    // Translations storage and loading state
+    this._translations = {};
+    this._translationsLoaded = false;
   }
 
   /**
@@ -667,6 +706,13 @@ class ShutterNewEditor extends HTMLElement {
    * and localization
    */
   set hass(hass) {
+    // Load translations once when hass is first set
+    if (!this._translationsLoaded && hass) {
+      loadTranslations(hass.language || 'en').then(translations => {
+        this._translations = translations;
+        this._translationsLoaded = true;
+      });
+    }
     this._hass = hass;
     /* Propagate hass to form if already created */
     if (this._form) {
@@ -690,17 +736,14 @@ class ShutterNewEditor extends HTMLElement {
   _render() {
     if (!this._config) return;
 
-    /* Get translated labels for form fields */
-    const labelOpen = this._localize('ui.card.cover.open_cover', 'Open');
-    const labelStop = this._localize('ui.card.cover.stop_cover', 'Stop');
-    const labelClose = this._localize('ui.card.cover.close_cover', 'Close');
-    const labelFavorite = this._localize(
-      'ui.panel.lovelace.editor.features.types.cover-position-favorite.label',
-      'Favorite'
-    );
-    const labelPosition = this._localize('ui.card.cover.position', 'Position');
-    const labelLeft = this._localize('ui.panel.lovelace.editor.card.energy-distribution.opening_directions.left', 'Left');
-    const labelRight = this._localize('ui.panel.lovelace.editor.card.energy-distribution.opening_directions.right', 'Right');
+    /* Get translated labels for form fields (from local translation files) */
+    const labelOpen = this._localize('open', 'Open');
+    const labelStop = this._localize('stop', 'Stop');
+    const labelClose = this._localize('close', 'Close');
+    const labelFavorite = this._localize('favorite', 'Favorite');
+    const labelPosition = this._localize('position', 'Position');
+    const labelLeft = this._localize('left', 'Left');
+    const labelRight = this._localize('right', 'Right');
 
     /* ===== CONFIGURATION SCHEMA ===== */
     /* Native HA schema defines form fields and their types */
@@ -754,7 +797,7 @@ class ShutterNewEditor extends HTMLElement {
       {
         name: "hide",
         type: "expandable",
-        title: this._localize('ui.common.hide', 'Hide'),
+        title: this._localize('hide', 'Hide'),
         expanded: true,            // Expanded by default
 
         schema: [
@@ -817,18 +860,17 @@ class ShutterNewEditor extends HTMLElement {
   }
 
   /**
-   * Utility: Get translated text from HA or use English fallback
+   * Utility: Get translated text from local translation files
+   * Falls back to English version if translation key not found
+   * Format: key should be like 'open', 'close', 'stop', etc.
    */
-  _localize(key, fallback) {
-    if (this._hass && this._hass.localize) {
-      const translation = this._hass.localize(key);
-
-      if (translation) {
-        return translation;
-      }
+  _localize(key, fallback = '') {
+    // Return from local translations if available
+    if (this._translations && this._translations[key]) {
+      return this._translations[key];
     }
-
-    return fallback;  // Use English if HA not ready or translation missing
+    // Fallback to English string if translation not found
+    return fallback || key;
   }
 
   /**
@@ -836,31 +878,12 @@ class ShutterNewEditor extends HTMLElement {
    * Maps schema field names to user-friendly labels
    */
   _computeLabel(schema) {
-    /* Get translated labels from HA */
-    const entityLabel = this._localize(
-      'ui.components.entity.entity-picker.entity',
-      'Entity'
-    );
-
-    const nameLabel = this._localize(
-      'ui.dialogs.entity_registry.editor.name',
-      'Name'
-    );
-
-    const favLabel = this._localize(
-      'ui.panel.lovelace.editor.features.types.cover-position-favorite.label',
-      'Favorite'
-    );
-
-    const hideLabel = this._localize(
-      'ui.common.hide',
-      'Hide'
-    );
-
-    const posLabel = this._localize(
-      'ui.card.cover.position',
-      'Position'
-    );
+    /* Get translated labels from local translation files */
+    const entityLabel = this._localize('entity', 'Entity');
+    const nameLabel = this._localize('name', 'Name');
+    const favLabel = this._localize('favorite_position', 'Favorite position (0-100)');
+    const hideLabel = this._localize('hide', 'Hide');
+    const posLabel = this._localize('position', 'Position');
 
     /* Define human-friendly labels for each field */
     const labels = {
@@ -868,7 +891,7 @@ class ShutterNewEditor extends HTMLElement {
 
       name: `${nameLabel} (Optional)`,
 
-      favorite: `${favLabel} Position (0-100)`,
+      favorite: `${favLabel}`,
 
       position: posLabel,
 

@@ -9,6 +9,7 @@
     "right": "Droite",
     "hide": "Masquer",
     "entity": "Entité",
-    "name": "Nom"
+    "name": "Nom",
+    "favorite_position": "Position favorite (0-100)"
   }
 }
