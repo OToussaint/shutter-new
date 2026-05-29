@@ -79,28 +79,14 @@ class ShutterNew extends HTMLElement {
   _initTranslations() {
     // Try to get language from browser
     const browserLang = navigator.language || navigator.userLanguage || 'en';
-    console.log('[ShutterNew._initTranslations] Starting with browserLang:', browserLang);
-    console.log('[ShutterNew._initTranslations] typeof loadTranslations:', typeof loadTranslations);
-    console.log('[ShutterNew._initTranslations] loadTranslations:', loadTranslations);
-    
-    try {
-      const result = loadTranslations(browserLang);
-      console.log('[ShutterNew._initTranslations] loadTranslations returned:', result);
-      result.then(translations => {
-        console.log('[ShutterNew._initTranslations] Translations loaded:', translations);
-        this._translations = translations;
-        this._translationsLoaded = true;
-        // If component already rendered, update it with translations
-        if (this.shadowRoot.innerHTML) {
-          console.log('[ShutterNew._initTranslations] Updating DOM with translations');
-          this._updateDom();
-        }
-      }).catch(err => {
-        console.error('[ShutterNew._initTranslations] Error in .then() promise:', err);
-      });
-    } catch (err) {
-      console.error('[ShutterNew._initTranslations] Error calling loadTranslations:', err);
-    }
+    loadTranslations(browserLang).then(translations => {
+      this._translations = translations;
+      this._translationsLoaded = true;
+      // FORCE re-render with new translations
+      this._render();
+    }).catch(err => {
+      console.error('[ShutterNew._initTranslations] Error loading translations:', err);
+    });
   }
 
   /**
@@ -210,14 +196,11 @@ class ShutterNew extends HTMLElement {
    * Format: key should be like 'open', 'close', 'stop', etc.
    */
   _localize(key, fallback = '') {
-    console.log('[ShutterNew._localize] key:', key, '_translations:', this._translations, '_translationsLoaded:', this._translationsLoaded);
     // Return from local translations if available
     if (this._translations && this._translations[key]) {
-      console.log('[ShutterNew._localize] Found translation for', key, ':', this._translations[key]);
       return this._translations[key];
     }
     // Fallback to English string if translation not found
-    console.log('[ShutterNew._localize] Using fallback for', key, ':', fallback || key);
     return fallback || key;
   }
 
@@ -227,7 +210,6 @@ class ShutterNew extends HTMLElement {
    * Uses template literals to build the Shadow DOM content
    */
   _render() {
-    console.log('[ShutterNew._render] Called, _translationsLoaded:', this._translationsLoaded, '_translations:', this._translations);
     // Parse visibility config: determine which buttons to show
     const hideList = this._config.hide || [];
     const showFavorite = !hideList.includes('favorite');
@@ -779,15 +761,12 @@ class ShutterNewEditor extends HTMLElement {
   _initTranslations() {
     // Try to get language from browser
     const browserLang = navigator.language || navigator.userLanguage || 'en';
-    console.log('[ShutterNewEditor._initTranslations] Starting with browserLang:', browserLang);
     loadTranslations(browserLang).then(translations => {
-      console.log('[ShutterNewEditor._initTranslations] Translations loaded:', translations);
       this._translations = translations;
       this._translationsLoaded = true;
-      // If form already rendered, refresh it with translations
-      if (this._form) {
-        console.log('[ShutterNewEditor._initTranslations] Updating form with new translations');
-        this._form.computeLabel = this._computeLabel.bind(this);
+      // If config already set, re-render with new translations
+      if (this._config) {
+        this._render();
       }
     }).catch(err => {
       console.error('[ShutterNewEditor._initTranslations] Error loading translations:', err);
@@ -799,18 +778,14 @@ class ShutterNewEditor extends HTMLElement {
    * and localization
    */
   set hass(hass) {
-    console.log('[ShutterNewEditor.set hass] Called, _translationsLoaded:', this._translationsLoaded, '_translations:', this._translations);
     // If translations still not loaded, load with HA language
     if (!this._translations || !this._translations['open']) {
       const haLang = hass.language || 'en';
-      console.log('[ShutterNewEditor.set hass] Loading translations with haLang:', haLang);
       loadTranslations(haLang).then(translations => {
-        console.log('[ShutterNewEditor.set hass] Translations loaded in hass setter:', translations);
         this._translations = translations;
         this._translationsLoaded = true;
         // Update form labels after translations load
         if (this._form) {
-          console.log('[ShutterNewEditor.set hass] Updating form after loading translations');
           this._form.computeLabel = this._computeLabel.bind(this);
           this._form.hass = hass;
         }
@@ -831,7 +806,6 @@ class ShutterNewEditor extends HTMLElement {
    * Triggers render to display form with current values
    */
   setConfig(config) {
-    console.log('[ShutterNewEditor.setConfig] Called, _translationsLoaded:', this._translationsLoaded, '_translations:', this._translations);
     this._config = config;
     this._render();
   }
@@ -841,7 +815,6 @@ class ShutterNewEditor extends HTMLElement {
    * Handles all form interactions and validation
    */
   _render() {
-    console.log('[ShutterNewEditor._render] Starting, _translationsLoaded:', this._translationsLoaded, '_translations:', this._translations);
     if (!this._config) return;
 
     /* Get translated labels for form fields (from local translation files) */
@@ -973,14 +946,11 @@ class ShutterNewEditor extends HTMLElement {
    * Format: key should be like 'open', 'close', 'stop', etc.
    */
   _localize(key, fallback = '') {
-    console.log('[ShutterNewEditor._localize] key:', key, '_translations:', this._translations, '_translationsLoaded:', this._translationsLoaded);
     // Return from local translations if available
     if (this._translations && this._translations[key]) {
-      console.log('[ShutterNewEditor._localize] Found translation for', key, ':', this._translations[key]);
       return this._translations[key];
     }
     // Fallback to English string if translation not found
-    console.log('[ShutterNewEditor._localize] Using fallback for', key, ':', fallback || key);
     return fallback || key;
   }
 
