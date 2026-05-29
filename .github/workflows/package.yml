@@ -19,18 +19,10 @@ jobs:
           VERSION=$(grep '"version"' manifest.json | head -1 | sed 's/.*"version": "\([^"]*\)".*/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
       
-      - name: Create package
-        run: |
-          mkdir -p shutter-new
-          cp dist/shutter-new.js shutter-new/
-          # cp strings.json shutter-new/
-          # cp -r dist/translations/ shutter-new/
-          zip -r shutter-new.zip shutter-new/
-      
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: shutter-new.zip
+          files: dist/shutter-new.js
           tag_name: ${{ steps.version.outputs.version }}
           prerelease: false
         env:
