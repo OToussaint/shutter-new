@@ -85,6 +85,7 @@ class ShutterNew extends HTMLElement {
       // Only re-render if config already set (card already initialized)
       if (this._config) {
         this._render();
+        this._setupListeners();  // Re-attach listeners after re-render
       }
     }).catch(err => {
       console.error('[ShutterNew._initTranslations] Error loading translations:', err);
