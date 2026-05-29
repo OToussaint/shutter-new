@@ -1,4 +1,22 @@
 /**
+ * Get the base URL for loading component resources (translations, etc.)
+ * Works with both development (relative paths) and HACS deployment
+ */
+function getComponentBaseUrl() {
+  // Try to find the script URL from document's scripts
+  const scripts = document.querySelectorAll('script');
+  for (const script of scripts) {
+    if (script.src && (script.src.includes('shutter-new.js') || script.src.includes('shutter-new'))) {
+      // Extract directory from script URL
+      const url = new URL(script.src, window.location.href);
+      return url.pathname.substring(0, url.pathname.lastIndexOf('/'));
+    }
+  }
+  // Fallback: assume standard HACS path
+  return '/hacsfiles/shutter-new';
+}
+
+/**
  * Shared translation loader utility
  * Loads translations from local JSON files based on language code
  * Returns promise that resolves to translations object
@@ -7,12 +25,14 @@ async function loadTranslations(lang) {
   try {
     // Map language code to file (e.g., 'en-GB' -> 'en.json')
     const langFile = lang.split('-')[0].toLowerCase();
-    const filePath = `./translations/${langFile}.json`;
+    const baseUrl = getComponentBaseUrl();
+    const filePath = `${baseUrl}/translations/${langFile}.json`;
     
     const response = await fetch(filePath);
     if (!response.ok) {
       // Fall back to English if requested language not found
-      const fallbackResponse = await fetch('./translations/en.json');
+      const fallbackPath = `${baseUrl}/translations/en.json`;
+      const fallbackResponse = await fetch(fallbackPath);
       if (!fallbackResponse.ok) throw new Error('Failed to load translations');
       return (await fallbackResponse.json()).shutter_new || {};
     }
