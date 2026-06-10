@@ -24,6 +24,7 @@ jobs:
           mkdir -p shutter-new
           cp dist/shutter-new.js shutter-new/
           cp strings.json shutter-new/
+          cp manifest.json shutter-new/
           cp -r dist/translations/ shutter-new/
           cd shutter-new
           zip -r ../shutter-new.zip .
