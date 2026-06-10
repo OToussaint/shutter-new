@@ -1,5 +1,9 @@
 {
   "name": "Roller Shutter Controller",
+  "content_in_root": true,
+  "filename": "shutter-new.zip",
+  "homeassistant": "2025.1.0",
   "render_readme": true,
-  "filename": "shutter-new.js"
+  "archive_link": false,
+  "zip_release": true
 }
