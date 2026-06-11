@@ -30,15 +30,19 @@ A compact and intuitive Home Assistant Lovelace card for controlling roller shut
 
 ### Manual Installation
 
-1. Copy `shutter-new.js` to your Home Assistant config folder:
+1. Copy the entire `dist` folder content to your Home Assistant config folder:
    ```
-   .homeassistant/www/shutter-new.js
+   .homeassistant/www/shutter-new/
+   ├── shutter-new.js
+   └── translations/
+       ├── en.json
+       └── fr.json
    ```
 
 2. Add to your Lovelace resources (in your dashboard YAML):
    ```yaml
    resources:
-     - url: /local/shutter-new.js
+     - url: /local/shutter-new/shutter-new.js
        type: module
    ```
 
