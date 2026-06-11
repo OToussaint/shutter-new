@@ -168,7 +168,3 @@ If you encounter issues:
 2. Try removing and re-adding the card
 3. Clear your browser cache
 4. Check browser console for error messages (F12)
-
-## License
-
-MIT
