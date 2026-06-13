@@ -637,16 +637,20 @@ class ShutterNew extends HTMLElement {
   /**
    * Utility: Resolve the favorite position as a number (0-100)
    * Accepts either a plain number in config or a HA entity ID whose state is the position
+   * When invert_position is true, applies 100 - value (for reversed scales like Overkiz)
    */
   _getFavoritePos() {
     const fav = this._config.favorite;
+    const invert = this._config.invert_position === true;
+    let pos;
     // If it looks like an entity ID (contains a dot and is not a pure number)
     if (typeof fav === 'string' && fav.includes('.') && isNaN(Number(fav))) {
       const stateObj = this._hass && this._hass.states[fav];
-      if (stateObj) return Math.round(Number(stateObj.state)) || 0;
-      return 0;
+      pos = stateObj ? Math.round(Number(stateObj.state)) || 0 : 0;
+    } else {
+      pos = parseInt(fav, 10) || 50;
     }
-    return parseInt(fav, 10) || 50;
+    return invert ? 100 - pos : pos;
   }
 
   /**
@@ -874,6 +878,14 @@ class ShutterNewEditor extends HTMLElement {
         }
       },
 
+      /* Invert entity value (for reversed scales like Overkiz) */
+      {
+        name: "invert_position",
+        selector: {
+          boolean: {}              // Toggle: true = invert, false = normal
+        }
+      },
+
       /* Position of control buttons (left or right) */
       {
         name: "position",
@@ -926,6 +938,7 @@ class ShutterNewEditor extends HTMLElement {
         this._config.favorite !== undefined
           ? String(this._config.favorite)
           : '50',                       // Default to 50% if not set
+      invert_position: this._config.invert_position === true,
       position: this._config.position || "left",  // Default to "left" if not set
       hide: {
         items: this._config.hide || [] // Array of hidden controls
@@ -976,6 +989,7 @@ class ShutterNewEditor extends HTMLElement {
     const entityLabel = this._localize('entity', 'Entity');
     const nameLabel = this._localize('name', 'Name');
     const favLabel = this._localize('favorite_position', 'Favorite position (0-100 or entity ID)');
+    const invertLabel = this._localize('invert_position', 'Invert entity value');
     const hideLabel = this._localize('hide', 'Hide');
     const posLabel = this._localize('position', 'Position');
 
@@ -986,6 +1000,8 @@ class ShutterNewEditor extends HTMLElement {
       name: `${nameLabel} (Optional)`,
 
       favorite: `${favLabel}`,
+
+      invert_position: invertLabel,
 
       position: posLabel,
 
@@ -1011,6 +1027,8 @@ class ShutterNewEditor extends HTMLElement {
       entity: formData.entity,
 
       favorite: formData.favorite,
+
+      invert_position: formData.invert_position === true,
 
       position: formData.position || "left",           // Button position (left or right)
 

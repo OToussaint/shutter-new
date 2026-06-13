@@ -10,6 +10,7 @@
     "hide": "Hide",
     "entity": "Entity",
     "name": "Name",
-    "favorite_position": "Favorite position (0-100)"
+    "favorite_position": "Favorite position (0-100)",
+    "invert_position": "Invert entity value"
   }
 }

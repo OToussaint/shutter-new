@@ -69,6 +69,7 @@ entity: cover.living_room_blinds
 - **favorite**: Position to jump to when clicking the heart button. Accepts:
   - A number between 0 and 100 (default: `50`)
   - A Home Assistant entity ID whose state is the position (e.g. `number.bureau_gauche_my_position`)
+- **invert_position**: Set to `true` when the entity uses a reversed scale (e.g. Overkiz: `0` = closed, `100` = open but HA sees it the other way). Default: `false`
 - **position**: Buttons position on the card ("left" or "right", default: "left")
 - **hide**: Array of controls to hide from the card
 
@@ -92,7 +93,15 @@ favorite: 75
 ```yaml
 type: custom:shutter-new
 entity: cover.living_room_shutters
-favorite: number.bureau_gauche_my_position
+favorite: number.living_room_my_position
+```
+
+#### Favorite with inverted scale (e.g. Overkiz)
+```yaml
+type: custom:shutter-new
+entity: cover.bureau_gauche
+favorite: number.living_room_my_position
+invert_position: true
 ```
 
 #### Hide controls you don't use
