@@ -603,6 +603,9 @@ class ShutterNew extends HTMLElement {
     this._isDragging = true;   // Prevent HA updates from overwriting position
     const overlay = this.shadowRoot.getElementById('overlay');
     if (overlay) overlay.classList.add('active');  // Show motion overlay
+    // Show current position immediately (before any movement)
+    const posDisplay = this.shadowRoot.getElementById('positionDisplay');
+    if (posDisplay) posDisplay.innerHTML = `<span>${Math.round(100 - this._position)}%</span>`;
   }
 
   /**
