@@ -630,8 +630,9 @@ class ShutterNew extends HTMLElement {
     if (contentEl) contentEl.style.height = closedPercent + '%';
 
     /* Update position percentage display in center */
+    /* Display closed percentage (0% = fully open, 100% = fully closed) */
     const posDisplay = this.shadowRoot.getElementById('positionDisplay');
-    if (posDisplay) posDisplay.innerHTML = `<span>${Math.round(this._position)}%</span>`;
+    if (posDisplay) posDisplay.innerHTML = `<span>${Math.round(closedPercent)}%</span>`;
   }
 
   /**
