@@ -547,7 +547,7 @@ class ShutterNew extends HTMLElement {
     if (downBtn) downBtn.addEventListener('click', () => this._callService('close_cover'));
     if (favoriteBtn) {
       favoriteBtn.addEventListener('click', () => {
-        const favPos = parseInt(this._config.favorite, 10) || 50;
+        const favPos = this._getFavoritePos();
         // Send favorite position (0-100) to HA
         this._callService('set_cover_position', { position: favPos });
       });
@@ -635,6 +635,21 @@ class ShutterNew extends HTMLElement {
   }
 
   /**
+   * Utility: Resolve the favorite position as a number (0-100)
+   * Accepts either a plain number in config or a HA entity ID whose state is the position
+   */
+  _getFavoritePos() {
+    const fav = this._config.favorite;
+    // If it looks like an entity ID (contains a dot and is not a pure number)
+    if (typeof fav === 'string' && fav.includes('.') && isNaN(Number(fav))) {
+      const stateObj = this._hass && this._hass.states[fav];
+      if (stateObj) return Math.round(Number(stateObj.state)) || 0;
+      return 0;
+    }
+    return parseInt(fav, 10) || 50;
+  }
+
+  /**
    * Utility: Call a Home Assistant service on the cover entity
    * Used for open, close, stop, and set_position commands
    */
@@ -688,7 +703,7 @@ class ShutterNew extends HTMLElement {
     /* ===== BUTTON STATE MANAGEMENT ===== */
     /* Convert positions to integers for comparison */
     const currentPos = Math.round(Number(this._position));
-    const favoritePos = Math.round(Number(this._config.favorite));
+    const favoritePos = this._getFavoritePos();
 
     /* Disable favorite button if already at favorite position */
     if (favoriteBtn) {
@@ -851,16 +866,11 @@ class ShutterNewEditor extends HTMLElement {
         }
       },
 
-      /* Favorite position slider (0-100%) */
+      /* Favorite: number (0-100) or entity ID (e.g. number.my_position) */
       {
         name: "favorite",
         selector: {
-          number: {
-            min: 0,
-            max: 100,
-            step: 1,
-            mode: "box"            // Number input box
-          }
+          text: {}                 // Accepts both a number and an entity ID
         }
       },
 
@@ -914,8 +924,8 @@ class ShutterNewEditor extends HTMLElement {
       name: this._config.name || "",
       favorite:
         this._config.favorite !== undefined
-          ? this._config.favorite
-          : 50,                        // Default to 50% if not set
+          ? String(this._config.favorite)
+          : '50',                       // Default to 50% if not set
       position: this._config.position || "left",  // Default to "left" if not set
       hide: {
         items: this._config.hide || [] // Array of hidden controls
@@ -965,7 +975,7 @@ class ShutterNewEditor extends HTMLElement {
     /* Get translated labels from local translation files */
     const entityLabel = this._localize('entity', 'Entity');
     const nameLabel = this._localize('name', 'Name');
-    const favLabel = this._localize('favorite_position', 'Favorite position (0-100)');
+    const favLabel = this._localize('favorite_position', 'Favorite position (0-100 or entity ID)');
     const hideLabel = this._localize('hide', 'Hide');
     const posLabel = this._localize('position', 'Position');
 

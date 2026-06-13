@@ -66,7 +66,9 @@ entity: cover.living_room_blinds
 
 ### Optional
 - **name**: Custom display name (defaults to entity's friendly name)
-- **favorite**: Position to jump to when clicking the heart button (0-100%, default: 50%)
+- **favorite**: Position to jump to when clicking the heart button. Accepts:
+  - A number between 0 and 100 (default: `50`)
+  - A Home Assistant entity ID whose state is the position (e.g. `number.bureau_gauche_my_position`)
 - **position**: Buttons position on the card ("left" or "right", default: "left")
 - **hide**: Array of controls to hide from the card
 
@@ -84,6 +86,13 @@ type: custom:shutter-new
 entity: cover.living_room_shutters
 name: Living Room
 favorite: 75
+```
+
+#### Favorite linked to a HA entity
+```yaml
+type: custom:shutter-new
+entity: cover.living_room_shutters
+favorite: number.bureau_gauche_my_position
 ```
 
 #### Hide controls you don't use
