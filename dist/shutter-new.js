@@ -654,7 +654,7 @@ class ShutterNew extends HTMLElement {
     } else {
       pos = parseInt(fav, 10) || 50;
     }
-    return invert ? 100 - pos : pos;
+    return Math.min(100, Math.max(0, invert ? 100 - pos : pos));
   }
 
   /**
