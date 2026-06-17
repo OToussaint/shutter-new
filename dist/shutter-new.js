@@ -466,6 +466,19 @@ class ShutterNew extends HTMLElement {
           color: var(--disabled-text-color, #a0a0a0) !important;
         }
 
+        /* Handle disabled: no grab cursor, not interactive */
+        .shutter-handle.disabled {
+          cursor: not-allowed !important;
+          opacity: 0.3;
+          pointer-events: none;
+        }
+
+        /* Unavailable/unknown: dim the shutter slats */
+        .shutter-content.unavailable {
+          opacity: 0.4;
+          filter: grayscale(100%);
+        }
+
         .control-btn ha-icon {
           --mdc-icon-size: 16px;
         }
@@ -600,6 +613,8 @@ class ShutterNew extends HTMLElement {
    * Begin drag interaction: sets flag and shows visual feedback
    */
   _startDrag() {
+    // Block drag when state is unknown or unavailable
+    if (this._haState === 'unknown' || this._haState === 'unavailable') return;
     this._isDragging = true;   // Prevent HA updates from overwriting position
     const overlay = this.shadowRoot.getElementById('overlay');
     if (overlay) overlay.classList.add('active');  // Show motion overlay
@@ -694,10 +709,25 @@ class ShutterNew extends HTMLElement {
       contentEl.style.height = closedPercent + '%';
     }
 
+    /* ===== BUTTON STATE MANAGEMENT ===== */
+    const isUnavailable = (this._haState === 'unknown' || this._haState === 'unavailable');
+
+    /* Dim shutter slats when state is unknown/unavailable */
+    if (contentEl) {
+      contentEl.classList.toggle('unavailable', isUnavailable);
+    }
+
     /* ===== MOTION INDICATORS ===== */
     /* Show motion overlay with arrow icon when shutter is opening/closing */
+    /* Show status icon when unknown or unavailable */
     if (overlayEl && posDisplay && !this._isDragging) {
-      if (this._haState === 'opening') {
+      if (isUnavailable) {
+        overlayEl.classList.add('active');
+        const icon = this._haState === 'unknown'
+          ? 'mdi:help-circle-outline'
+          : 'mdi:alert-circle-outline';
+        posDisplay.innerHTML = `<ha-icon icon="${icon}"></ha-icon>`;
+      } else if (this._haState === 'opening') {
         overlayEl.classList.add('active');
         posDisplay.innerHTML = '<ha-icon icon="mdi:arrow-up"></ha-icon>';
       } else if (this._haState === 'closing') {
@@ -708,7 +738,22 @@ class ShutterNew extends HTMLElement {
       }
     }
 
-    /* ===== BUTTON STATE MANAGEMENT ===== */
+    /* Disable handle drag when unavailable */
+    const handleEl = this.shadowRoot.getElementById('handle');
+    if (handleEl) {
+      handleEl.classList.toggle('disabled', isUnavailable);
+    }
+
+    /* When unavailable: disable all buttons */
+    if (isUnavailable) {
+      if (favoriteBtn) favoriteBtn.disabled = true;
+      if (upBtn) { upBtn.disabled = true; upBtn.classList.remove('active'); }
+      if (downBtn) { downBtn.disabled = true; downBtn.classList.remove('active'); }
+      if (stopBtn) stopBtn.disabled = true;
+      return;
+    }
+    if (stopBtn) stopBtn.disabled = false;
+
     /* Convert positions to integers for comparison */
     const currentPos = Math.round(Number(this._position));
     const favoritePos = this._getFavoritePos();
