@@ -1,6 +1,6 @@
 # Roller Shutter Controller 🪟
 
-A compact and intuitive Home Assistant Lovelace card for controlling roller shutters, blinds, and garage doors.
+A compact and intuitive Home Assistant card for controlling roller shutters, blinds, and garage doors.
 
 ## Features
 
@@ -36,7 +36,8 @@ A compact and intuitive Home Assistant Lovelace card for controlling roller shut
    ├── shutter-new.js
    └── translations/
        ├── en.json
-       └── fr.json
+       ├── fr.json
+       └── ...
    ```
 
 2. Add to your Lovelace resources (in your dashboard YAML):

@@ -995,24 +995,18 @@ class ShutterNewEditor extends HTMLElement {
     };
 
     /* Create minimal form container */
-    this.shadowRoot.innerHTML = `
-      <ha-form id="form"></ha-form>
-    `;
-
-    /* Get reference to form element */
-    this._form = this.shadowRoot.getElementById('form');
+    if (!this._form) {
+      this.shadowRoot.innerHTML = `<ha-form id="form"></ha-form>`;
+      this._form = this.shadowRoot.getElementById("form");
+      this._form.addEventListener("value-changed", (ev) => this._valueChanged(ev));
+    }
 
     /* Configure form with schema, data, and handlers */
     this._form.hass = this._hass;                                  // HA context for translations
     this._form.data = formData;                                    // Current values
     this._form.schema = SCHEMA;                                    // Field definitions
     this._form.computeLabel = this._computeLabel.bind(this);       // Custom labels
-
-    /* Listen for form changes */
-    this._form.addEventListener(
-      'value-changed',
-      (ev) => this._valueChanged(ev)  // User changed a field
-    );
+   
   }
 
   /**
